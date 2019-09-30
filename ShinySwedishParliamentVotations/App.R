@@ -73,6 +73,8 @@ server <- function(input, output){
       filter(V2 >= input$V2Input[1],
              V2 <= input$V2Input[2],
              V16 == input$V16Input,
+             V7 == input$V7Input,
+             V10 == input$V10Input,
              V14 == input$V14Input
       )
     filtered
