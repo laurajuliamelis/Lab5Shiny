@@ -1,6 +1,6 @@
 Package: awesomelab5
 Type: Package
-Title: Linear Regression Package
+Title: Shiny Application
 Version: 1.0.0
 Date: 2019-09-11
 Authors@R: as.person(c(

@@ -1,7 +1,7 @@
 # Project Status
-[![Build Status](https://travis-ci.org/laurajuliamelis/Lab5.svg?branch=master)](https://travis-ci.org/laurajuliamelis/Lab5)
+[![Build Status](https://travis-ci.org/laurajuliamelis/Lab5Shiny.svg?branch=master)](https://travis-ci.org/laurajuliamelis/Lab5Shiny)
 
-# Lab 5: Some R Package
+# Lab 5Shiny: Some R Package
 
 OA short and simple R package containing two useful algorithms. 
 
@@ -23,7 +23,7 @@ install.packages("testthat")
 Run the following in R:
 
 ```
-devtools::install_github("MiniDlicious/Lab4", subdir="awesomelab4")
+devtools::install_github("laurajuliamelis/Lab5Shiny", subdir="awesomelab4")
 ```
 
 ## Running the tests
