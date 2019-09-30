@@ -5,7 +5,7 @@ library(ggplot2)
 library(dplyr)
 
 # 2. LOAD DATA
-GET_votation(period=NULL, span=FALSE, party=NULL, vote_result=NULL, rows=5)
+#GET_votation(period=NULL, span=FALSE, party=NULL, vote_result=NULL, rows=5)
 path <- "http://data.riksdagen.se/voteringlista/?"
 
 # rm = year span ex. 2018/19
@@ -39,10 +39,11 @@ ui <- fluidPage(
   titlePanel("Swedish Parliament Votations"),
   sidebarLayout(
     sidebarPanel(
-      sliderInput("V2Input", "Year", 2002, 2019, c(2018, 2019)),
-      selectInput("V16Input", "Vote", choices= unique(df$V16), selected = "Ja"),
-      selectInput(inputId = "V14Input", label = "Genre",
-                  choices = unique(df$V14), selected= "kvinna")
+      sliderInput("V2Input", "Year", 2002, 2019, c(2017, 2019)),
+      selectInput("V7Input", "Full name", choices= unique(df$V7)),
+      selectInput("V10Input", "City", choices= unique(df$V10)),
+      radioButtons(inputId = "V14Input", label = "Genre",choices = unique(df$V14), selected= NULL),
+      radioButtons("V16Input", "Vote", choices= unique(df$V16), selected = NULL)
     ),
     mainPanel(
       plotOutput(outputId ="coolplot"),
