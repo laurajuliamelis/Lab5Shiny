@@ -1,0 +1,107 @@
+---
+title: "awesomlab4: A linear regression package"
+author: "Martin Svensson and Laura Julià Melis"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{awesomelab4: A linear regression package}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+## 1. Introduction.
+The **awesomelab4** package contains an object with class linreg, created with the RC object oriented system. This object is helpful to handle linear regression models as it provides multiple methods such as `resid()` and `coef()` to obtain the vector of residuals and the regressions coefficients of a given regression model, respectively.
+
+## 2. Statistics calculations. 
+By default, tha class object calculates various statistics and stores them. This section aims to briefly explain these estimations. Let $\boldsymbol{X}$ be the matrix of independent variables and $\boldsymbol{y}$ the vector with the dependent variable values, then `linreg()` will estimate the following:
+
+**i. Regressions coefficients:**
+$$\hat{\beta}=(\boldsymbol{X}^{\boldsymbol{T}}\boldsymbol{X})^{-1} \boldsymbol{X}^{\boldsymbol{T}}\boldsymbol{y}$$
+**ii. The fitted values:**
+$$\hat{\boldsymbol{y}}= \boldsymbol{X}\hat{\beta}$$
+**iii. The residuals:**
+$$\boldsymbol{\hat{e}}= \boldsymbol{y}-\boldsymbol{\hat{y}}= \boldsymbol{y}- \boldsymbol{X}\hat{\beta}$$
+**iv. The degrees of freedom:**
+$$df=n-p$$
+where $n$ is the number of observations and $p$ is the number of parameters in the model.
+
+**v. The residual variance:**
+$$\hat{\sigma}^2=\frac{\boldsymbol{e}^\boldsymbol{T}\boldsymbol{e}}{df}$$
+**vi. The variance of the regression coefficients:**
+$$\widehat{\boldsymbol{Var}}(\hat{\beta})=\hat{\sigma}^2(\boldsymbol{X}^{\boldsymbol{T}}\boldsymbol{X})^{-1}$$
+**vii. The t-values for each coefficient:**
+$$t_{\beta}=\frac{\hat{\beta}}{\sqrt{Var(\hat{\beta})}}$$
+
+## 3. linreg( ) description.
+The class object `linreg()` stores the statistics seen in the section above as *fields* and contains multiple functions (*methods*) to obtain outputs related to linear regression models. The name and a brief description of each one is listed below. 
+
+**1. Fields.**
+ 
+  - `formula:` an object of class "formula".
+  - `data:` a data frame.
+  - `regression_coefficients:` the regression coefficients of the model calculated using the QR decomposition.
+  - `fitted_values:` the fitted values.
+  - `residuals:` the residuals. It is the difference between the real values and the fitted values.
+  - `degrees_of_freedom:` the degrees of freedom: the number of observations minus the number of parameters in the model.
+  - `residual_variance:` the residual variance. 
+  - `variance_of_coefficients:` the variance of the regression coefficients.
+  - `std_error:` the standard error of the regression coefficients. It is the square root of the variance.
+  - `t_values:` the t-values for each coefficient.
+  - `p_values:` the p-values for each coefficient.
+
+**2. Methods.**
+ 
+  - `initialize()` calculates all the statistics described in section **2** from formula and data.
+  - `print()` prints out the coefficients and coefficient names.
+  - `plot()` plots two different plots using ggplot2: "Residuals vs Fitted" and "Scale-Location".
+  - `resid()` returns the vector of residuals.
+  - `pred()` returns the predicted values.
+  - `coef()` returns the coefficients as a named vector.
+
+## 4. Example.
+This section shows how to use `linreg()` on a well known dataset such as iris.
+```{r include=FALSE}
+library(ggplot2)
+library(cowplot)
+library(awesomelab4)
+```
+
+### Initialization.
+```{r}
+# Loading the dataset.
+data(iris) 
+
+# Setting "formula" and "data" arguments
+linreg_mod <- linreg$new(Petal.Length~Sepal.Width+Sepal.Length, data=iris)
+```
+
+### Methods.
+**print()**
+```{r}
+linreg_mod$print()
+```
+
+**plot()**
+```{r plot1, fig.height=4, fig.width=7, fig.align="center"}
+plot1 <- linreg_mod$plot()
+plot1
+```
+
+**resid()**
+```{r}
+head(linreg_mod$resid())
+```
+
+**pred()**
+```{r}
+head(linreg_mod$pred())
+```
+
+**coef()**
+```{r}
+linreg_mod$coef()
+```
+
+## References.
+* Reference Classes: <http://adv-r.had.co.nz/R5.html>
+* QR decomposition: <https://en.wikipedia.org/wiki/QR_decomposition>
+* Vignettes: <http://r-pkgs.had.co.nz/vignettes.html>
