@@ -1,10 +1,11 @@
-# Load packages
+# 1. LOAD PACKAGES
 library(xml2)
 library(shiny)
 library(ggplot2)
 library(dplyr)
 
-# Load data
+# 2. LOAD DATA
+GET_votation(period=NULL, span=FALSE, party=NULL, vote_result=NULL, rows=5)
 path <- "http://data.riksdagen.se/voteringlista/?"
 
 # rm = year span ex. 2018/19
@@ -32,10 +33,8 @@ for(child in xml_children(response)){
   df[i,1:length(values)] <- values
   i <- i+1
 }
-# count(df, "V16")
-# count(df, "V14")
 
-# Define UI
+# 3. DEFINE "ui".
 ui <- fluidPage(
   titlePanel("Swedish Parliament Votations"),
   sidebarLayout(
@@ -53,7 +52,7 @@ ui <- fluidPage(
   )
 )
 
-# Define server function
+# 4. DEFINE "server" function.
 server <- function(input, output){
   output$coolplot <- renderPlot({
     filtered <-
@@ -79,5 +78,5 @@ server <- function(input, output){
   })
 }
 
-# Create Shiny object
+# 5. CREATE SHINY OBJECT.
 shinyApp(ui = ui, server = server)
