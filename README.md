@@ -1,6 +1,3 @@
-# Project Status
-[![Build Status](https://travis-ci.org/laurajuliamelis/Lab5Shiny.svg?branch=master)](https://travis-ci.org/laurajuliamelis/Lab5Shiny)
-
 # Lab 5Shiny: Some R Package
 
 OA short and simple R package containing two useful algorithms. 
