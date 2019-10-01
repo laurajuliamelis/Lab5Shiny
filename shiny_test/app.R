@@ -2,7 +2,7 @@
 ui <- fluidPage(
   
   # App title 
-  titlePanel("test"),
+  titlePanel("Swedish Parliament Votations"),
   
   sidebarLayout(
     
@@ -48,13 +48,27 @@ ui <- fluidPage(
     # Main panel for displaying outputs ----
     mainPanel(
       
-      
-      # Output: Verbatim text for data summary ----
-      verbatimTextOutput("summary"),
-      
-      # Output: HTML table with requested number of observations ----
-      tableOutput("view")
-      
+      # Output: Tabset w/ plot, summary, and table ----
+      tabsetPanel(type = "tabs",
+                  
+                  # Output: Plots  ----
+                  tabPanel("Plots", 
+                           fluidRow(splitLayout(cellWidths = c("50%", "50%"), plotOutput("barplot", height = "4in"), plotOutput("piechart", height = "4in"))),
+                           br(),
+                           plotOutput("histogram",width = "100%", height = "3in")
+                  ),
+                  
+                  # Output: Verbatim text for data summary ----
+                  tabPanel("Summary", 
+                           tableOutput("table"),
+                           verbatimTextOutput("summary")
+                           
+                  ),
+                  
+                  # Output: HTML table with requested number of observations ----
+                  tabPanel("Data", 
+                           tableOutput("view"))
+      )
     )
   )
 )
@@ -75,6 +89,41 @@ server <- function(input, output) {
                  vote_result = input$vote_result, rows = input$rows)
   })
   
+  # Generate a barplot of the vote results ----
+  output$barplot <- renderPlot({
+    votes_count <- table(datasetInput()$vote)
+    
+    barplot(votes_count, xlab= "Votes", ylab= "Counts", main="Barplot of vote results", col= blues9)
+  })
+  
+  # Generate a piechart of the parties ----
+  output$piechart <- renderPlot({
+    parties_count <- table(datasetInput()$party)
+    pct <- round(parties_count/sum(parties_count)*100)
+    lbls <- paste(names(parties_count),pct,"%", sep=" ")
+    
+    pie(table(datasetInput()$party), col=blues9, main= "Pie chart of parties", labels = lbls)
+  })
+  
+  # Generate an histogram of the birth years ----
+  output$histogram <- renderPlot({
+    hist(datasetInput()$birth_year, col= grey.colors(10), xlab="Birth year", main="Histogram of the birth years")
+  })
+  
+  # Generate a summary table of the birth years ----
+  output$table <- renderTable({
+    year_summary <- round(as.numeric(summary(datasetInput()$birth_year)),0)
+    
+    year_table <- data.frame("Name" = c("Min.","1st Qu.","Median","Mean","3rd Qu.","Max."),
+                             "Birth year" = c(year_summary[1],
+                                              year_summary[2],
+                                              year_summary[3],
+                                              year_summary[4],
+                                              year_summary[5],
+                                              year_summary[6]),
+                             stringsAsFactors = FALSE
+    )
+  })
   
   # Generate a summary of the dataset ----
   # The output$summary depends on the datasetInput reactive
