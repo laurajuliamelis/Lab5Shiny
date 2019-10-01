@@ -114,7 +114,7 @@ server <- function(input, output) {
   output$table <- renderTable({
     year_summary <- round(as.numeric(summary(datasetInput()$birth_year)),0)
     
-    year_table <- data.frame("Name" = c("Min.","1st Qu.","Median","Mean","3rd Qu.","Max."),
+    year_table <- data.frame("Statistics" = c("Min.","1st Qu.","Median","Mean","3rd Qu.","Max."),
                              "Birth year" = c(year_summary[1],
                                               year_summary[2],
                                               year_summary[3],
