@@ -8,10 +8,11 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-The application require a basic installation of R. In addition `shiny` and `rSwedishParliamentVotations` packages.
+The application require a basic installation of R. In addition `devtools`, `shiny` and `rSwedishParliamentVotations` packages.
 
 ```
 install.packages("shiny")
+install.packages("devtools")
 devtools::install_github("laurajuliamelis/Lab5", subdir="rSwedishParliamentVotations")
 ```
 
@@ -20,7 +21,7 @@ devtools::install_github("laurajuliamelis/Lab5", subdir="rSwedishParliamentVotat
 Run the following in R to run the shiny app:
 
 ```
-runGithub("laurajuliamelis/Lab5Shiny", subdir="ShinySwedishParliamentVotations")
+runGitHub("laurajuliamelis/Lab5Shiny", subdir="ShinySwedishParliamentVotations")
 ```
 
 
