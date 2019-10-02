@@ -55,7 +55,8 @@ ui <- fluidPage(
                   tabPanel("Plots", 
                            fluidRow(splitLayout(cellWidths = c("50%", "50%"), plotOutput("barplot", height = "4in"), plotOutput("piechart", height = "4in"))),
                            br(),
-                           plotOutput("histogram",width = "100%", height = "3in")
+                           fluidRow(splitLayout(cellWidths = c("50%", "50%"), plotOutput("histogram", height = "4in"), plotOutput("hbarplot", height = "4in")))
+                        
                   ),
                   
                   # Output: Verbatim text for data summary ----
@@ -93,7 +94,7 @@ server <- function(input, output) {
   output$barplot <- renderPlot({
     votes_count <- table(datasetInput()$vote)
     
-    barplot(votes_count, xlab= "Votes", ylab= "Counts", main="Barplot of vote results", col= blues9)
+    barplot(votes_count, xlab= "Votes", ylab= "Counts", main="Barplot of vote results", col= blues9[-(1:3)])
   })
   
   # Generate a piechart of the parties ----
@@ -107,8 +108,16 @@ server <- function(input, output) {
   
   # Generate an histogram of the birth years ----
   output$histogram <- renderPlot({
-    hist(datasetInput()$birth_year, col= grey.colors(10), xlab="Birth year", main="Histogram of the birth years")
+    hist(datasetInput()$birth_year, col= blues9[3], xlab="Birth year", main="Histogram of the birth years")
   })
+  
+  # Generate an horizontal barplot of the genre ----
+  output$hbarplot <- renderPlot({
+    sex_count <- table(datasetInput()$sex)
+    
+    barplot(sex_count, horiz=TRUE, xlab= "Counts", main="Horizontal barplot of genre", col= blues9[-(1:3)])
+  })
+  
   
   # Generate a summary table of the birth years ----
   output$table <- renderTable({
