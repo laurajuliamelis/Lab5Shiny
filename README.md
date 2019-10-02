@@ -1,6 +1,6 @@
-# Lab 5Shiny: Some R Package
+# Lab5Shiny: A shiny application
 
-OA short and simple R package containing two useful algorithms. 
+A simple Shiny application about Swedish Parliament Votation data. 
 
 ## Getting Started
 
@@ -8,26 +8,21 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
-The package require a basic installation of R. In addition devtools and testthat packages.
+The application require a basic installation of R. In addition `shiny` and `rSwedishParliamentVotations` packages.
 
 ```
-install.packages("devtools")
-install.packages("testthat")
+install.packages("shiny")
+devtools::install_github("laurajuliamelis/Lab5", subdir="rSwedishParliamentVotations")
 ```
 
 ### Installing
 
-Run the following in R:
+Run the following in R to run the shiny app:
 
 ```
-devtools::install_github("laurajuliamelis/Lab5Shiny", subdir="awesomelab4")
+runGithub("laurajuliamelis/Lab5Shiny", subdir="ShinySwedishParliamentVotations")
 ```
 
-## Running the tests
-
-```
-devtools::test()
-```
 
 ### Break down into end to end tests
 
@@ -36,11 +31,6 @@ Explain what these tests test and why
 ```
 Give an example
 ```
-
-## Built With
-
-* [Travis CI](https://travis-ci.org)
-
 
 ## Versioning
 
