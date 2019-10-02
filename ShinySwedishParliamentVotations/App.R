@@ -1,85 +1,147 @@
-# 1. LOAD PACKAGES
-library(xml2)
-library(shiny)
-library(ggplot2)
-library(dplyr)
-
-# 2. LOAD DATA
-#GET_votation(period=NULL, span=FALSE, party=NULL, vote_result=NULL, rows=5)
-path <- "http://data.riksdagen.se/voteringlista/?"
-
-# rm = year span ex. 2018/19
-# //bet = "betäckning" -> designation
-# //punkt = "förslagspunkt" -> proposal point
-# parti = party e.g. C for Centerpartiet
-# //valkrets = constituency
-# rost = vote (Ja, Nej, Avstå, Frånvarande)
-# //iid = some personal id
-# sz = number of rows to request
-# utformat = format of the response
-
-request <- paste0(path, "rm=2017/18", "&sz=50", "&utformat=xml")
-
-#path <- "http://data.riksdagen.se/voteringlista/?rm=2018%2F19&sz=5&utformat=xml"
-response <- read_xml(request)
-
-df <- data.frame()
-i <- 1
-for(child in xml_children(response)){
-  values <- vector()
-  for(subchild in xml_children(child)){
-    values <- append(values, xml_text(subchild))
-  }
-  df[i,1:length(values)] <- values
-  i <- i+1
-}
-
-# 3. DEFINE "ui".
+# Define UI for dataset viewer app ----
 ui <- fluidPage(
+  
+  # App title 
   titlePanel("Swedish Parliament Votations"),
+  
   sidebarLayout(
+    
     sidebarPanel(
-      sliderInput("V2Input", "Year", 2002, 2019, c(2017, 2019)),
-      selectInput("V7Input", "Full name", choices= unique(df$V7)),
-      selectInput("V10Input", "City", choices= unique(df$V10)),
-      radioButtons(inputId = "V14Input", label = "Genre",choices = unique(df$V14), selected= NULL),
-      radioButtons("V16Input", "Vote", choices= unique(df$V16), selected = NULL)
-    ),
+      
+      sliderInput(inputId = "period", 
+                  h3("Start of Fiscal Year"), 
+                  min = 2002, max = 2018, 
+                  value = c(2002, 2018)
+                  ),
+      
+      checkboxGroupInput("party", 
+                         h3("Party Selector"), 
+                         choices = list("Centerpartier" = "C", 
+                                        "Folkpartiet" = "FP", 
+                                        "Liberalerna" = "L",
+                                        "Kristdemokraterna" = "KD",
+                                        "Miljöpartiet" = "MP",
+                                        "Moderata Samlingspartiet" = "M",
+                                        "Socialdemokraterna" = "S",
+                                        "Sverigedemokraterna" = "SD",
+                                        "Vänsterpartiet" = "V",
+                                        "Others" = "-")
+                         ),
+
+            # Input: Selector for choosing dataset ----
+            radioButtons(inputId = "vote_result", 
+                         h3("Vote"), 
+                         choices = list("All" = "",
+                                        "Yes" = "Ja", 
+                                        "No" = "Nej", 
+                                        "Refrain" = "Avstår",
+                                        "Absent" = "Frånvarande"),
+                         selected = ""
+                         ),
+      
+      # Input: Numeric entry for number of obs to view ----
+      numericInput(inputId = "rows",
+                   label = "Number of observations to view:",
+                   value = 10)
+      ),
+    
+    # Main panel for displaying outputs ----
     mainPanel(
-      plotOutput(outputId ="coolplot"),
-      br(), br(),
-      tableOutput("results")
+      
+      # Output: Tabset w/ plot, summary, and table ----
+      tabsetPanel(type = "tabs",
+                  
+                  # Output: Plots  ----
+                  tabPanel("Plots", 
+                           fluidRow(splitLayout(cellWidths = c("50%", "50%"), plotOutput("barplot", height = "4in"), plotOutput("piechart", height = "4in"))),
+                           br(),
+                           plotOutput("histogram",width = "100%", height = "3in")
+                  ),
+                  
+                  # Output: Verbatim text for data summary ----
+                  tabPanel("Summary", 
+                           tableOutput("table"),
+                           verbatimTextOutput("summary")
+                           
+                  ),
+                  
+                  # Output: HTML table with requested number of observations ----
+                  tabPanel("Data", 
+                           tableOutput("view"))
+      )
     )
   )
 )
 
-# 4. DEFINE "server" function.
-server <- function(input, output){
-  output$coolplot <- renderPlot({
-    filtered <-
-      df %>%
-      filter(V2 >= input$V2Input[1],
-             V2 <= input$V2Input[2],
-             V16 == input$V16Input,
-             V14 == input$V14Input
-      )
-    ggplot(filtered, aes(V14)) +
-      geom_histogram()
+
+# Define server logic to summarize and view selected dataset ----
+server <- function(input, output) {
+  
+  # Return the requested dataset ----
+  # By declaring datasetInput as a reactive expression we ensure
+  # that:
+  #
+  # 1. It is only called when the inputs it depends on changes
+  # 2. The computation and result are shared by all the callers,
+  #    i.e. it only executes a single time
+  datasetInput <- reactive({
+    GET_votation(period = input$period, span = TRUE, party = input$party, 
+                 vote_result = input$vote_result, rows = input$rows)
   })
   
-  output$results <- renderTable({
-    filtered <-
-      df %>%
-      filter(V2 >= input$V2Input[1],
-             V2 <= input$V2Input[2],
-             V16 == input$V16Input,
-             V7 == input$V7Input,
-             V10 == input$V10Input,
-             V14 == input$V14Input
-      )
-    filtered
+  # Generate a barplot of the vote results ----
+  output$barplot <- renderPlot({
+    votes_count <- table(datasetInput()$vote)
+    
+    barplot(votes_count, xlab= "Votes", ylab= "Counts", main="Barplot of vote results", col= blues9)
   })
+  
+  # Generate a piechart of the parties ----
+  output$piechart <- renderPlot({
+    parties_count <- table(datasetInput()$party)
+    pct <- round(parties_count/sum(parties_count)*100)
+    lbls <- paste(names(parties_count),pct,"%", sep=" ")
+    
+    pie(table(datasetInput()$party), col=blues9, main= "Pie chart of parties", labels = lbls)
+  })
+  
+  # Generate an histogram of the birth years ----
+  output$histogram <- renderPlot({
+    hist(datasetInput()$birth_year, col= grey.colors(10), xlab="Birth year", main="Histogram of the birth years")
+  })
+  
+  # Generate a summary table of the birth years ----
+  output$table <- renderTable({
+    year_summary <- round(as.numeric(summary(datasetInput()$birth_year)),0)
+    
+    year_table <- data.frame("Statistics" = c("Min.","1st Qu.","Median","Mean","3rd Qu.","Max."),
+                             "Birth year" = c(year_summary[1],
+                                              year_summary[2],
+                                              year_summary[3],
+                                              year_summary[4],
+                                              year_summary[5],
+                                              year_summary[6]),
+                             stringsAsFactors = FALSE
+    )
+  })
+  
+  # Generate a summary of the dataset ----
+  # The output$summary depends on the datasetInput reactive
+  # expression, so will be re-executed whenever datasetInput is
+  # invalidated, i.e. whenever the input$dataset changes
+  output$summary <- renderPrint({
+    dataset <- datasetInput()
+    summary(dataset)
+  })
+  
+  # Show the first "n" observations ----
+  # The output$view depends on both the databaseInput reactive
+  # expression and input$obs, so it will be re-executed whenever
+  # input$dataset or input$obs is changed
+  output$view <- renderTable({
+    head(datasetInput(), n = input$rows)
+  })
+  
 }
 
-# 5. CREATE SHINY OBJECT.
-shinyApp(ui = ui, server = server)
+shinyApp(ui, server)
