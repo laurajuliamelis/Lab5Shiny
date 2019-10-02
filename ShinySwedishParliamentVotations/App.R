@@ -35,10 +35,10 @@ ui <- fluidPage(
             radioButtons(inputId = "vote_result", 
                          h3("Vote"), 
                          choices = list("All" = "",
-                                        "Yes" = "Ja", 
-                                        "No" = "Nej", 
-                                        "Refrain" = "Avstår",
-                                        "Absent" = "Frånvarande"),
+                                        "Yes" = "Yes", 
+                                        "No" = "No", 
+                                        "Refrain" = "Refrain",
+                                        "Absent" = "Absent"),
                          selected = ""
                          ),
       
