@@ -7,6 +7,9 @@ ui <- fluidPage(
   sidebarLayout(
     
     sidebarPanel(
+      # Download dataset button ---
+      h4("Download dataset"), 
+      downloadButton("downloadData", "Download"),
       
       sliderInput(inputId = "period", 
                   h3("Start of Fiscal Year"), 
@@ -43,6 +46,7 @@ ui <- fluidPage(
       numericInput(inputId = "rows",
                    label = "Number of observations to view:",
                    value = 10)
+      
       ),
     
     # Main panel for displaying outputs ----
@@ -61,7 +65,10 @@ ui <- fluidPage(
                   
                   # Output: Verbatim text for data summary ----
                   tabPanel("Summary", 
-                           tableOutput("table"),
+                           h3("Summary tables"),
+                           fluidRow(splitLayout(cellWidths = c("25%", "25%", "25%", "25%"), tableOutput("yearstable"), tableOutput("partiestable"), tableOutput("votestable"), tableOutput("genretable"))),
+                           br(),
+                           h3("Information about the dataset"),
                            verbatimTextOutput("summary")
                            
                   ),
@@ -78,7 +85,7 @@ ui <- fluidPage(
 # Define server logic to summarize and view selected dataset ----
 server <- function(input, output) {
   
-  # Return the requested dataset ----
+  # 0. Return the requested dataset ----
   # By declaring datasetInput as a reactive expression we ensure
   # that:
   #
@@ -90,14 +97,15 @@ server <- function(input, output) {
                  vote_result = input$vote_result, rows = input$rows)
   })
   
-  # Generate a barplot of the vote results ----
+  # 1. PLOTS FOR THE "PLOTS PANEL"
+  # 1.1. Generate a barplot of the vote results ----
   output$barplot <- renderPlot({
     votes_count <- table(datasetInput()$vote)
     
     barplot(votes_count, xlab= "Votes", ylab= "Counts", main="Barplot of vote results", col= blues9[-(1:3)])
   })
   
-  # Generate a piechart of the parties ----
+  # 1.2. Generate a piechart of the parties ----
   output$piechart <- renderPlot({
     parties_count <- table(datasetInput()$party)
     pct <- round(parties_count/sum(parties_count)*100)
@@ -106,21 +114,21 @@ server <- function(input, output) {
     pie(table(datasetInput()$party), col=blues9, main= "Pie chart of parties", labels = lbls)
   })
   
-  # Generate an histogram of the birth years ----
+  # 1.3. Generate an histogram of the birth years ----
   output$histogram <- renderPlot({
     hist(datasetInput()$birth_year, col= blues9[3], xlab="Birth year", main="Histogram of the birth years")
   })
   
-  # Generate an horizontal barplot of the genre ----
+  # 1.4. Generate an horizontal barplot of the genre ----
   output$hbarplot <- renderPlot({
     sex_count <- table(datasetInput()$sex)
     
     barplot(sex_count, horiz=TRUE, xlab= "Counts", main="Horizontal barplot of genre", col= blues9[-(1:3)])
   })
   
-  
-  # Generate a summary table of the birth years ----
-  output$table <- renderTable({
+  # 2. TABLES FOR THE "SUMMARY PANEL"
+  # 2.1. Generate a summary table of the birth years ----
+  output$yearstable <- renderTable({
     year_summary <- round(as.numeric(summary(datasetInput()$birth_year)),0)
     
     year_table <- data.frame("Statistics" = c("Min.","1st Qu.","Median","Mean","3rd Qu.","Max."),
@@ -134,7 +142,29 @@ server <- function(input, output) {
     )
   })
   
-  # Generate a summary of the dataset ----
+  # 2.2. Generate a frequency table of votes ----
+  output$votestable <- renderTable({
+    votes_count <- as.data.frame(table(datasetInput()$vote), row.names= NULL)
+    names(votes_count) <- c("Vote", "Frequency")
+    votes_count
+  })
+  
+  # 2.3. Generate a frequency table of genre ----
+  output$genretable <- renderTable({
+    genre_count <- as.data.frame(table(datasetInput()$sex), row.names= NULL)
+    names(genre_count) <- c("Genre", "Frequency")
+    genre_count
+  })
+  
+  # 2.4. Generate a frequency table of parties ----
+  output$partiestable <- renderTable({
+    parties_count <- as.data.frame(table(datasetInput()$party), row.names= NULL)
+    names(parties_count) <- c("Party", "Frequency")
+    parties_count
+  })
+  
+  
+  # 2.5. Generate a summary of the dataset ----
   # The output$summary depends on the datasetInput reactive
   # expression, so will be re-executed whenever datasetInput is
   # invalidated, i.e. whenever the input$dataset changes
@@ -143,6 +173,7 @@ server <- function(input, output) {
     summary(dataset)
   })
   
+  # 3. DATASET FOR THE "DATA PANEL"
   # Show the first "n" observations ----
   # The output$view depends on both the databaseInput reactive
   # expression and input$obs, so it will be re-executed whenever
@@ -151,6 +182,15 @@ server <- function(input, output) {
     head(datasetInput(), n = input$rows)
   })
   
+  # 4. Downloadable csv of selected dataset ----
+  output$downloadData <- downloadHandler(
+    filename = function() {
+      paste("SwedishParliamentVotations", ".csv", sep = "")
+    },
+    content = function(file) {
+      write.csv(datasetInput(), file, row.names = FALSE)
+    }
+  )
 }
 
 shinyApp(ui, server)
