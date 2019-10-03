@@ -187,10 +187,10 @@ server <- function(input, output) {
   output$query_information <- renderText({
     row_response <- nrow(datasetInput())
     if(row_response < input$rows){
-      paste0('<h4>Aquired results ', row_response, "/", input$rows, 
-             '</h4><h4 style="color: #27ae60;">All query results aquired.</h4>')
+      paste0('<h4>Acquired results ', row_response, "/", input$rows, 
+             '</h4><h4 style="color: #27ae60;">All query results acquired</h4>')
     }else{
-      paste0('<h4>Aquired results ', row_response, "/", input$rows, 
+      paste0('<h4>Acquired results ', row_response, "/", input$rows, 
              '</h4><h4 style="color: #c0392b;">WARNING: Some results might be left out, try narrowing the query.</h4>')
     }
   })
