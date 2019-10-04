@@ -45,9 +45,9 @@ ui <- fluidPage(
       # Input: Slider for query size
       sliderInput(inputId = "rows", 
                   h3("Maximum size of query"), 
-                  min = 5000, max = 90000, 
-                  value = 5000,
-                  step = 5000
+                  min = 500, max = 10000, 
+                  value = 500,
+                  step = 500
       ),
       
       # Download dataset button
