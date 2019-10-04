@@ -1,24 +1,17 @@
-Package: awesomelab5
-Type: Package
-Title: Shiny Application
+Type: Shiny
+Title: Shiny Swedish Parliament Votations
 Version: 1.0.0
-Date: 2019-09-11
+Date: 2019-10-04
 Authors@R: as.person(c(
     "Martin Svensson <martin.k.r.svensson@gmail.com> [aut, cre]", 
     "Laura Julià Melis <laaurajulia@gmail.com> [aut]"
   ))
-Description: This package TODO.
+Description: This is a simple Shiny application about Swedish Parliament Votation data.
 License: MIT + file LICENSE
 Encoding: UTF-8
 RoxygenNote: 6.1.1
 VignetteBuilder: knitr
 Depends: R (>= 3.5.0)
 Imports: 
-    methods,
-    ggplot2,
-    cowplot
-Suggests: 
-    roxygen2,
-    testthat,
-    knitr,
-    rmarkdown
+    shiny,
+    rSwedishParliamentVotations
